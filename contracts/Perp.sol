@@ -13,6 +13,8 @@ contract Perp {
         bool long;
     }
 
+    address public owner;
+
     address public WETH;
     address public cobie;
     IFriendtechSharesV1 public FriendtechSharesV1;
@@ -28,6 +30,7 @@ contract Perp {
         WETH = _WETH;
         FriendtechSharesV1 = IFriendtechSharesV1(_FriendtechSharesV1);
         cobie = _cobie;
+        owner = msg.sender;
     }
 
     function getPrice() public view returns(uint256) {
@@ -66,8 +69,8 @@ contract Perp {
     // TRADER //
 
     function open(uint256 notional, uint256 collateral, bool long) public {
-        require(positionOf[msg.sender].notional != 0, "Position already open!");
-        uint256 collateralAfterFees = collateral - ((collateral * 2)/10**1);
+        require(positionOf[msg.sender].notional == 0, "Position already open!");
+        uint256 collateralAfterFees = collateral - ((collateral * 2)/10);
         require(notional / collateralAfterFees >= 5, "Insufficient collateral!");
         lpFees += collateral - collateralAfterFees;
         _transfer(msg.sender, address(this), collateral);
@@ -110,7 +113,5 @@ contract Perp {
         require(green == false, "Position in the green!");
         _transfer(address(this), msg.sender, positionOf[trader].collateral);
     }
-
-    /// @dev Write tests!!
 
 }
